@@ -1,11 +1,11 @@
 package com.miaoshaproject.controller;
 
 import com.miaoshaproject.controller.viewobject.ItemVO;
-import com.miaoshaproject.dataobject.ItemDO;
 import com.miaoshaproject.error.BusinessException;
 import com.miaoshaproject.response.CommonReturnType;
 import com.miaoshaproject.service.ItemService;
 import com.miaoshaproject.service.model.ItemModel;
+import org.joda.time.format.DateTimeFormat;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -72,6 +72,15 @@ public class ItemController extends BaseController {
         ItemVO itemVO = new ItemVO();
         if (itemModel ==  null){
             return null;
+        }
+        if (itemModel.getPromoModel() !=null){
+            //有正在进行的秒杀活动
+            itemVO.setPromoStatus(itemModel.getPromoModel().getStatus());
+            itemVO.setPromoId(itemModel.getPromoModel().getId());
+            itemVO.setPromoPrice(itemModel.getPromoModel().getPromoItemPrice());
+            itemVO.setPromoStartDate(itemModel.getPromoModel().getStartDate().toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")));
+        }else {
+            itemVO.setPromoStatus(0);
         }
         BeanUtils.copyProperties(itemModel,itemVO);
         return itemVO;

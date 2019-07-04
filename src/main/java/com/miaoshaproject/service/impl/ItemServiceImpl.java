@@ -7,7 +7,9 @@ import com.miaoshaproject.dataobject.ItemStockDO;
 import com.miaoshaproject.error.BusinessException;
 import com.miaoshaproject.error.EmBusinessError;
 import com.miaoshaproject.service.ItemService;
+import com.miaoshaproject.service.PromoService;
 import com.miaoshaproject.service.model.ItemModel;
+import com.miaoshaproject.service.model.PromoModel;
 import com.miaoshaproject.validator.ValidationResult;
 import com.miaoshaproject.validator.ValidatorImp;
 import com.sun.org.apache.xpath.internal.operations.Mod;
@@ -34,6 +36,16 @@ public class ItemServiceImpl implements ItemService {
     @Autowired
     private ItemStockDOMapper itemStockDOMapper;
 
+    @Autowired
+    private PromoService promoService;
+
+
+    @Override
+    @Transactional
+    public void increaseSales(Integer id, Integer amount) throws BusinessException {
+        itemDOMapper.increaseSales(id,amount);
+
+    }
 
     private ItemDO convertItemDOFromItemModel(ItemModel itemModel) throws BusinessException {
         ItemDO itemDO = new ItemDO();
@@ -108,7 +120,27 @@ public class ItemServiceImpl implements ItemService {
 
         //将dataobject转化成model
         ItemModel itemModel = convertFromDataObject(itemDO,itemStockDO);
+
+        //获得活动商品信息
+        PromoModel promoModel = promoService.getPromoByItemId(item_id);
+        if (promoModel != null && promoModel.getStatus() != 3){
+            itemModel.setPromoModel(promoModel);
+        }
+
         return itemModel;
+    }
+
+    @Override
+    @Transactional
+    public boolean decreaseStock(Integer itemId, Integer amount) throws BusinessException {
+        int affectedRow = itemStockDOMapper.decreaseStock(itemId,amount);
+        //更新库存成功
+        if (affectedRow >0){
+            return true;
+        }else {
+            //跟新库存失败
+            return false;
+        }
     }
 
     private ItemModel convertFromDataObject(ItemDO itemDO,ItemStockDO itemStockDO){

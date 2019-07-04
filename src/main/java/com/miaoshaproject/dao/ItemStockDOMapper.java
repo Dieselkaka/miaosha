@@ -1,6 +1,8 @@
 package com.miaoshaproject.dao;
 
 import com.miaoshaproject.dataobject.ItemStockDO;
+import com.miaoshaproject.error.BusinessException;
+import org.apache.ibatis.annotations.Param;
 
 public interface ItemStockDOMapper {
     int deleteByPrimaryKey(Integer id);
@@ -15,4 +17,6 @@ public interface ItemStockDOMapper {
     int updateByPrimaryKeySelective(ItemStockDO record);
 
     int updateByPrimaryKey(ItemStockDO record);
+
+    int decreaseStock(@Param("itemId")Integer itemId,@Param("amount") Integer amount)throws BusinessException;
 }
